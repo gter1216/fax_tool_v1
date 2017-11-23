@@ -8,8 +8,6 @@ How to compile and install the tool:
 
 How to use the tool
 
-cd ../bin/
-
 1. Parse PCM data.
 
 Usage: pcm_parse -i filename
