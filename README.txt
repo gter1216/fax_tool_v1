@@ -12,6 +12,17 @@ cd ../bin/
 
 1. Parse PCM data.
 
+Usage: pcm_parse -i filename
+
 2. Parse T38 data.
+
+Usage: t38_pcap_parse 
+                   -i filename: input pcap file name, mandatory
+                   -e: using ecm, default is non-ecm, optional
+                   -v: giving t38 version, default is 0, optional
+                   -S: source address, optional
+                   -s: source port, optional
+                   -D: destination address, optional
+                   -d: destination port, optional
 
 3. Simulate IPFAX terminal.
