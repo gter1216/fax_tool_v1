@@ -1,0 +1,12 @@
+
+# Directories
+/build/
+/fax_demo
+
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+

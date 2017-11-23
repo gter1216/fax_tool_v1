@@ -1,0 +1,14 @@
+
+1. 目录结构：
+
+   总目录名：/home/xxu/project/fax_tool_project/fax_tool_v1
+      
+       一级目录：bin   ----> 在 build 目录下 执行 make，会将可执行程序生成到 bin 目录下
+                 build ----> 执行 cmake .. 生成 makefile， 执行 make && make install 编译程序
+                 src   ----> 源代码，下面可以建立子文件夹
+                     CMakeLists.txt  --> src 子目录 配置文件
+                 CMakeLists.txt  ---> 根目录 cmake 配置文件
+                 spandsp ----> 外部依赖库和头文件
+                 doc ---->  帮助文档
+
+2. 要在子目录下的 CMakeLists SET EXECUTABLE_OUTPUT_PATH
