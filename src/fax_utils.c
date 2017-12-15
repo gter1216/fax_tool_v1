@@ -133,5 +133,65 @@ int get_tiff_total_pages(const char *file)
     TIFFClose(tiff_file);
     return max;
 }
+
+void print_pcm_ts(pcm_timestamp_t * s)
+{
+	printf("Current pcm timestamp is -> %02d:%02d:%02d.%03d\n",
+		s->hour,
+		s->minute,
+		s->sec,
+		s->msec);
+}
+
+
+const char * get_ts_tag(pcm_timestamp_t * s)
+{
+	char buf[100];
+	char * buffer;
+	buffer = buf;
+
+	sprintf(buffer, "%02d:%02d:%02d.%03d ---> ",
+		s->hour,
+		s->minute,
+		s->sec,
+		s->msec);
+
+	return buffer;
+}
+
+void add_pcm_ts(pcm_timestamp_t * s, const int inc_msec)
+{
+	int new_msec = 0;
+	int new_sec = 0;
+	int new_min = 0;
+
+	////printf("xx debug, hahahaaaaaaaaaa\n");
+	////printf("xx debug, sec is: %02d, msec is: %03d\n", s->sec, s->msec);
+
+	new_msec = s->msec + inc_msec;
+
+	if (new_msec < 1000)
+		s->msec = new_msec;
+	else
+	{
+		new_sec = s->sec + 1;
+		s->msec = new_msec - 1000;
+		if (new_sec < 60)
+			s->sec = new_sec;
+		else
+		{
+			new_min = s->minute + 1;
+			s->sec = new_sec - 60;
+			if (new_min < 60)
+				s->minute = new_min;
+			else
+			{
+				s->hour++;
+				s->minute = new_min - 60;
+			}
+		}
+	}
+}
+
 /*- End of function --------------------------------------------------------*/
 /*- End of file ------------------------------------------------------------*/

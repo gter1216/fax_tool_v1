@@ -47,6 +47,9 @@
 
 #include "spandsp.h"
 #include <unistd.h>
+#include "udptl.h"
+#include "spandsp-sim.h"
+#include "fax_utils.h"
 
 #define SAMPLES_PER_CHUNK   160
 
@@ -66,6 +69,8 @@ enum
     FAX_V29_RX,
     FAX_V17_RX
 };
+
+static pcm_timestamp_t *pts;
 
 static const struct
 {
@@ -116,7 +121,8 @@ static void decode_20digit_msg(const uint8_t *pkt, int len)
 
     if (len > T30_MAX_IDENT_LEN + 3)
     {
-        fprintf(stderr, "XXX %d %d\n", len, T30_MAX_IDENT_LEN + 1);
+		const char * ts = get_ts_tag(pts);
+        fprintf(stderr, "%s XXX %d %d\n", ts, len, T30_MAX_IDENT_LEN + 1);
         msg[0] = '\0';
         return;
     }
@@ -130,7 +136,8 @@ static void decode_20digit_msg(const uint8_t *pkt, int len)
     while (p > 1)
         msg[k++] = pkt[--p];
     msg[k] = '\0';
-    fprintf(stderr, "%s is: \"%s\"\n", t30_frametype(pkt[0]), msg);
+	const char * ts = get_ts_tag(pts);
+    fprintf(stderr, "%s %s is: \"%s\"\n", ts, t30_frametype(pkt[0]), msg);
 }
 /*- End of function --------------------------------------------------------*/
 
@@ -142,10 +149,12 @@ static void print_frame(const char *io, const uint8_t *fr, int frlen)
     const char *vendor;
     const char *model;
     
-    fprintf(stderr, "%s %s:", io, t30_frametype(fr[2]));
+	const char * ts = get_ts_tag(pts);
+    fprintf(stderr, "%s %s %s:", ts, io, t30_frametype(fr[2]));
     for (i = 2;  i < frlen;  i++)
         fprintf(stderr, " %02x", fr[i]);
     fprintf(stderr, "\n");
+
     type = fr[2] & 0xFE;
     if (type == T30_DIS  ||  type == T30_DTC  ||  type == T30_DCS)
         t30_decode_dis_dtc_dcs(&t30_dummy, fr, frlen);
@@ -228,7 +237,8 @@ static int check_rx_dcs(const uint8_t *msg, int len)
         line_encoding = T4_COMPRESSION_ITU_T4_2D;
     else
         line_encoding = T4_COMPRESSION_ITU_T4_1D;
-    fprintf(stderr, "Selected compression %d\n", line_encoding);
+	const char * ts = get_ts_tag(pts);
+    fprintf(stderr, "%s Selected compression %d\n", ts, line_encoding);
 
     if ((current_fallback = find_fallback_entry(dcs_frame[4] & (DISBIT6 | DISBIT5 | DISBIT4 | DISBIT3))) < 0)
         printf("Remote asked for a modem standard we do not support\n");
@@ -245,10 +255,12 @@ static void hdlc_accept(void *user_data, const uint8_t *msg, int len, int ok)
     int frame_no;
     int i;
 
+	const char * ts = get_ts_tag(pts);
+
     if (len < 0)
     {
         /* Special conditions */
-        fprintf(stderr, "HDLC status is %s (%d)\n", signal_status_to_str(len), len);
+        fprintf(stderr, "%s HDLC status is %s (%d)\n", ts, signal_status_to_str(len), len);
         return;
     }
 
@@ -256,7 +268,7 @@ static void hdlc_accept(void *user_data, const uint8_t *msg, int len, int ok)
     {
         if (msg[0] != 0xFF  ||  !(msg[1] == 0x03  ||  msg[1] == 0x13))
         {
-            fprintf(stderr, "Bad frame header - %02x %02x\n", msg[0], msg[1]);
+            fprintf(stderr, "%s Bad frame header - %02x %02x\n", ts, msg[0], msg[1]);
             return;
         }
         print_frame("HDLC: ", msg, len);
@@ -279,7 +291,7 @@ static void hdlc_accept(void *user_data, const uint8_t *msg, int len, int ok)
     }
     else
     {
-        fprintf(stderr, "Bad HDLC frame ");
+        fprintf(stderr, "%s Bad HDLC frame ", ts);
         for (i = 0;  i < len;  i++)
             fprintf(stderr, " %02x", msg[i]);
         fprintf(stderr, "\n");
@@ -324,21 +336,23 @@ static void t4_end(void)
     }
     t4_rx_end_page(&t4_rx_state);
     t4_rx_get_transfer_statistics(&t4_rx_state, &stats);
-    fprintf(stderr, "Pages = %d\n", stats.pages_transferred);
-    fprintf(stderr, "Image size = %dx%d\n", stats.width, stats.length);
-    fprintf(stderr, "Image resolution = %dx%d\n", stats.x_resolution, stats.y_resolution);
-    fprintf(stderr, "Bad rows = %d\n", stats.bad_rows);
-    fprintf(stderr, "Longest bad row run = %d\n", stats.longest_bad_row_run);
+	const char * ts = get_ts_tag(pts);
+    fprintf(stderr, "%s Pages = %d\n", ts, stats.pages_transferred);
+    fprintf(stderr, "%s Image size = %dx%d\n", ts, stats.width, stats.length);
+    fprintf(stderr, "%s Image resolution = %dx%d\n", ts, stats.x_resolution, stats.y_resolution);
+    fprintf(stderr, "%s Bad rows = %d\n", ts, stats.bad_rows);
+    fprintf(stderr, "%s Longest bad row run = %d\n", ts, stats.longest_bad_row_run);
     t4_up = FALSE;
 }
 /*- End of function --------------------------------------------------------*/
 
 static void v21_put_bit(void *user_data, int bit)
 {
+	const char * ts = get_ts_tag(pts);
     if (bit < 0)
     {
         /* Special conditions */
-        fprintf(stderr, "V.21 rx status is %s (%d)\n", signal_status_to_str(bit), bit);
+        fprintf(stderr, "%s V.21 rx status is %s (%d)\n", ts, signal_status_to_str(bit), bit);
         switch (bit)
         {
         case SIG_STATUS_CARRIER_DOWN:
@@ -355,10 +369,11 @@ static void v21_put_bit(void *user_data, int bit)
 
 static void v17_put_bit(void *user_data, int bit)
 {
+	const char * ts = get_ts_tag(pts);
     if (bit < 0)
     {
         /* Special conditions */
-        fprintf(stderr, "V.17 rx status is %s (%d)\n", signal_status_to_str(bit), bit);
+        fprintf(stderr, "%s V.17 rx status is %s (%d)\n", ts, signal_status_to_str(bit), bit);
         switch (bit)
         {
         case SIG_STATUS_TRAINING_SUCCEEDED:
@@ -382,7 +397,7 @@ static void v17_put_bit(void *user_data, int bit)
         if (t4_rx_put_bit(&t4_rx_state, bit))
         {
             t4_end();
-            fprintf(stderr, "End of page detected\n");
+            fprintf(stderr, "%s End of page detected\n", ts);
         }
     }
     //printf("V.17 Rx bit %d - %d\n", rx_bits++, bit);
@@ -483,6 +498,15 @@ int main(int argc, char *argv[])
 
     filename = "fax_samp.wav";
 
+	//print_pcm_ts(pts);
+
+	pts = (pcm_timestamp_t *)malloc(sizeof(*pts));
+
+	pts->hour = 0;
+	pts->minute = 0;
+	pts->sec = 0;
+	pts->msec = 0;
+
 	if (argc <= 1)
 	{
 		usage();
@@ -559,12 +583,16 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to init\n");
         exit(0);
     }
-        
+     
+	print_pcm_ts(pts);
+
     for (;;)
     {
         len = sf_readf_short(inhandle, amp, SAMPLES_PER_CHUNK);
         if (len < SAMPLES_PER_CHUNK)
             break;
+		add_pcm_ts(pts, 20);
+		//print_pcm_ts(pts);
         fsk_rx(fsk, amp, len);
         v17_rx(v17, amp, len);
         v29_rx(v29, amp, len);

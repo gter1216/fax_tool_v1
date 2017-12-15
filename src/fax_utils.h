@@ -28,10 +28,25 @@
 #if !defined(_SPANDSP_FAX_UTILS_H_)
 #define _SPANDSP_FAX_UTILS_H_
 
+typedef struct
+{
+	int hour;
+	int minute;
+	int sec;
+	int msec;
+} pcm_timestamp_t;
+
+
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
+
+const char * get_ts_tag(pcm_timestamp_t * s);
+
+void print_pcm_ts(pcm_timestamp_t * s);
+
+void add_pcm_ts(pcm_timestamp_t * s, const int inc_msec);
 
 void fax_log_tx_parameters(t30_state_t *s, const char *tag);
 

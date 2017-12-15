@@ -197,7 +197,14 @@
     <ClCompile Include="spandsp\spandsp-0.0.6\src\vector_float.c" />
     <ClCompile Include="spandsp\spandsp-0.0.6\src\vector_int.c" />
     <ClCompile Include="src\fax_decode.c" />
+    <ClCompile Include="src\fax_utils.c" />
+    <ClCompile Include="src\modem_connect_tones_tests.c" />
+    <ClCompile Include="src\pcap_parse.c" />
+    <ClCompile Include="src\t38_decode.c" />
     <ClCompile Include="src\test.cpp" />
+    <ClCompile Include="src\test2.c" />
+    <ClCompile Include="src\test3.c" />
+    <ClCompile Include="src\udptl.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="spandsp\spandsp-0.0.6\spandsp-sim\spandsp-sim.h" />
@@ -370,11 +377,27 @@
     <ClInclude Include="spandsp\spandsp-0.0.6\src\v17_v32bis_rx_constellation_maps.h" />
     <ClInclude Include="spandsp\spandsp-0.0.6\src\v17_v32bis_tx_constellation_maps.h" />
     <ClInclude Include="spandsp\spandsp-0.0.6\src\v29tx_constellation_maps.h" />
+    <ClInclude Include="src\fax_utils.h" />
+    <ClInclude Include="src\pcap_parse.h" />
+    <ClInclude Include="src\udptl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build\cmakefiles\3.5.1\CMakeDetermineCompilerABI_C.bin" />
     <None Include="build\cmakefiles\3.5.1\CMakeDetermineCompilerABI_CXX.bin" />
     <None Include="build\cmakefiles\feature_tests.bin" />
+    <None Include="ClassDiagram.cd" />
+    <None Include="fax_tool.VC.db" />
+    <None Include="src\a.out" />
+    <None Include="src\test2" />
+    <None Include="src\test2.s" />
+    <None Include="src\test3" />
+    <None Include="src\test3.s" />
+    <None Include="~AutoRecover.fax_tool.vcxproj0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+    <Text Include="README.txt" />
+    <Text Include="src\CMakeLists.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
