@@ -22,5 +22,11 @@ Usage: t38_pcap_parse
                    -s: source port, optional
                    -D: destination address, optional
                    -d: destination port, optional
+                   
+3. Tone detect
 
-3. Simulate IPFAX terminal.
+Usage: modem connect tones_detect -d tone_file
+
+4. Simulate IPFAX terminal.
+
+Ongoing
