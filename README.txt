@@ -1,5 +1,5 @@
 
-This tool is used to parse PCM data, T38 data and simulate IPFAX terminal.
+This tool is used to parse PCM data, T38 data， convert PCM raw bin format to WAV format and simulate IPFAX terminal.
 
 How to compile and install the tool:
 
@@ -27,6 +27,10 @@ Usage: t38_pcap_parse
 
 Usage: modem connect tones_detect -d tone_file
 
-4. Simulate IPFAX terminal.
+4. Convert PCM raw bin format to wav format.
+
+Usage: pcm_parse -b filename.bin
+
+5. Simulate IPFAX terminal.
 
 Ongoing
