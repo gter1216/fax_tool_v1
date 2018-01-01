@@ -25,7 +25,7 @@ Usage: t38_pcap_parse
                    
 3. Tone detect
 
-Usage: modem connect tones_detect -d tone_file
+Usage: modem_connect_tones_detect -d tone_file
 
 4. Convert PCM raw bin format to wav format.
 
